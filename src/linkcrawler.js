@@ -16,24 +16,43 @@ class LinkCrawler {
   setOptions(options) {this._options = {...this._options ,...options}}
   getOptions() {return {...this._options}}
 
+  getFormattedURL(path) {
+
+    let parsedPath = url.parse(path);
+
+    if (parsedPath.hostname === null || parsedPath.protocol !== 'http' || parsedPath.hash !== null) {
+      parsedPath.hostname = parsedPath.hostname || this._options.defaultHostName; // setting default host
+      parsedPath.protocol = 'http'; // assuming request to be done using http
+      parsedPath.hash = null; // ignoring hash paths
+    }
+
+    return parsedPath;
+  }
   crawl(link) {
+
+    let linkUrl = url.format(this.getFormattedURL(link)); 
+    console.info(`Crawling:: ${linkUrl}`);
+
     return new Promise((resolve, reject) => {
-      http.get(link, res => {
+      http.get(linkUrl, res => {
         const { statusCode } = res;
         const contentType = res.headers['content-type'];
       
         let error;
       
         if (statusCode !== 200) 
-          error = new Error(`Request Failed.\nStatus Code: ${statusCode}`);
+          error = new Error(`Request Failed. Status Code: ${statusCode}`);
       
         else if (!/^text\/html/.test(contentType)) 
-          error = new Error(`Invalid content-type.\nExpected text/html but received ${contentType}`);
+          error = new Error(`Invalid content-type. Expected text/html but received ${contentType}`);
         
         if (error) {
           // Consume response data to free up memory
           res.resume();
-          reject(error);
+
+          console.warn(`Failed fetching ${linkUrl} :: ${error.message}`);
+          resolve([]);
+
           return;
         }
       
@@ -44,14 +63,8 @@ class LinkCrawler {
         res.on('end', () => {
           try {
             const resultDOM = new jsdom.JSDOM(rawData).window.document;
-            let links = [...resultDOM.querySelectorAll('a')].map(x => x.href).map(l => url.parse(l));
 
-            links.forEach(link => {
-              // set default host for links without host
-              if (link.hostname === null) {
-                link.hostname = this._options.defaultHostName;
-              }
-            });
+            let links = [...resultDOM.querySelectorAll('a')].map(x => x.href).map(r => this.getFormattedURL(r));
 
             if (!this._options.allowCrossDomain)
               links = links.filter(l => l.hostname === this._options.defaultHostName)

@@ -1,13 +1,13 @@
 const url = require('url');
 const LinkCrawler = require('./src/linkcrawler');
+const PageRanker  = require('./src/pageranker');
 
-let linkcrawler = new LinkCrawler();
+new PageRanker('vjti.ac.in', false).rank();
+// let linkcrawler = new LinkCrawler({
+//   defaultHostName  : 'vjti.ac.in',
+//   allowCrossDomain : false,
+// });
 
-linkcrawler.setOptions({
-  defaultHostName  : 'vjti.ac.in',
-  allowCrossDomain : false,
-})
-
-linkcrawler.crawl('http://vjti.ac.in')
-.then(x => x.map(y => console.log(url.format(y))))
-.catch(console.error)
+// linkcrawler.crawl('')
+// .then(x => x.map(y => console.log(url.format(y))))
+// .catch(console.error)

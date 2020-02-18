@@ -9,6 +9,8 @@
   "author": "Ameya S. Daddikar",
   "license": "ISC",
   "dependencies": {
-    "jsdom": "^16.2.0"
+    "async-mutex": "^0.1.4",
+    "jsdom": "^16.2.0",
+    "uuid": "^3.4.0"
   }
 }
