@@ -1,0 +1,14 @@
+{
+  "name": "pageranker",
+  "version": "1.0.0",
+  "description": "A NodeJS solution to find page ranks for a particular website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ameya S. Daddikar",
+  "license": "ISC",
+  "dependencies": {
+    "jsdom": "^16.2.0"
+  }
+}
