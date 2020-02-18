@@ -2,12 +2,19 @@ const http = require('http');
 const url = require('url');
 const jsdom = require('jsdom');
 
-const LinkCrawler = {
-  _options: {
-    defaultHostName  : null,  // set the default host for routes with url without the host mentioned
-    allowCrossDomain : true, // if false, crawler filters out links that are not under the `defaultHost` host
-  },
-  setOptions(options) {this._options = {...this._options ,...options}},
+const defaultOptions = {
+  defaultHostName  : null,  // set the default host for routes with url without the host mentioned
+  allowCrossDomain : true, // if false, crawler filters out links that are not under the `defaultHost` host
+};
+
+class LinkCrawler {
+
+  constructor(options = {}) {
+    this.setOptions({...defaultOptions, ...options})
+  }
+
+  setOptions(options) {this._options = {...this._options ,...options}}
+  getOptions() {return {...this._options}}
 
   crawl(link) {
     return new Promise((resolve, reject) => {
