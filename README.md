@@ -2,6 +2,16 @@
 
 This repo is my implementation of the PageRank Algorithm.
 
+Currently, I took the liberty to crawl the [VJTI website](http://vjti.ac.in). One can change the code in `index.js` and easily crawl other websites too.
+
+  _           | _
+------------- | -------------
+Name             | Ameya S. Daddikar
+College I.D.     | 161070015
+Department       | Computer Engineering
+Year & Programme | Final Year B.Tech.
+
+
 ### About the Crawler
 1. Makes HTTP requests. Finds next links by searching for the `href` attribute of the `<a></a>` tag.
 2. All URLs sanitzied using the `url.parse` and `url.format` of the [URL](https://nodejs.org/api/url.html) module.
@@ -20,10 +30,18 @@ This repo is my implementation of the PageRank Algorithm.
 5. Saves the crawled results to a new JSON file for furture use (because crawling can take 2-5 mins for a regular webiste). 
 
 
+
 ### Screenshots
+`index.js` code with comments explaining the various parameters required to instantiate and use the PageRanker class.
 ![index.js](screenshots/ss1.png)
+
+Snippet from `_handleCompute()` function inside `src/pageranker.js` that shows the algorithm steps applied. I've not used Matrices in my approach as I was unaware of that method. In hindsight, the current forEach is more time-consuming than the Matrix multiplication approach.
 ![PageRank Algo](screenshots/ss4.png)
+
+Start of output of the program. The pageranker tries to find the fie, however being unable to find it, the pageranker starts crawling the website instead.
 ![crawling](screenshots/ss2.png)
+
+Shows output after the crawling is done and the PageRank is calculated.
 ![result](screenshots/ss3.png)
 
 ### Issues
