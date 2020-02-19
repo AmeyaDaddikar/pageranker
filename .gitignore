@@ -1,2 +1,3 @@
 node_modules/
-site_map.json
+site_map*.json
+**.DS_Store
