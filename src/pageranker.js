@@ -136,14 +136,9 @@ class PageRanker {
 
         totalPR =  totalPR + ((1 - this.DAMPING_FACTOR) / N);
 
-        // if (totalPR > 0.000001)
-        //   console.log(link, totalPR);
-
-
         this._links[link].PR = totalPR;
       })
       
-      //console.log(`TOTAL:: ${tot}, Iteration: ${i + 1}, in: ${this._links['http://vjti.ac.in/index.php/disclaimer'].in.length} , PR: ${this._links['http://vjti.ac.in/index.php/disclaimer'].PR} L: ${this._links['http://vjti.ac.in/index.php/disclaimer'].L}`)
     }
     
     this._eventEmitter.emit(`release-${this._id}`);
