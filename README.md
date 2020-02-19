@@ -11,11 +11,21 @@ College I.D.     | 161070015
 Department       | Computer Engineering
 Year & Programme | Final Year B.Tech.
 
+
 ## How to run the code?
 ```
 npm install       #install dependencies
 node index.js     # make sure that the node version is at least v10.15.1
 ```
+
+
+## Dependencies
+ Package Name | Usage
+------------- | -------------
+[async-mutex](https://www.npmjs.com/package/async-mutex)| Safely handle async HTTP crawler requests by locking the `_linkQueue` object.
+[jsdom](https://www.npmjs.com/package/jsdom)| Used by `src/linkcrawler.js` to extract links from the retrieved HTML page. 
+[uuid](https://www.npmjs.com/package/uuid)| Generate unique ID for each PageRanker instance to avoid event-name colisions.
+
 
 ### About the LinkCrawler
 1. Makes HTTP requests. Finds next links by searching for the `href` attribute of the `<a></a>` tag.
@@ -28,6 +38,7 @@ node index.js     # make sure that the node version is at least v10.15.1
   - `save` (called after all pages have been crawled and the links are ready to be saved)  
   - `compute`(calls after the links object is instantiated and the PageRank can be applied)  
   - `release` (calls after the `compute` is done. Releases the eventHandlers and calls the `callback()`)
+
 
 2. Tries to find of a cached version of crawler's result exists. If not, then it starts the `append` event which calls the crawler. 
 3. Maintains `_linkQueue` which is made thread safe using [async-mutex](https://www.npmjs.com/package/async-mutex).
