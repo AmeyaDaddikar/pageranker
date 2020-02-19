@@ -12,7 +12,7 @@ Department       | Computer Engineering
 Year & Programme | Final Year B.Tech.
 
 
-### About the Crawler
+### About the LinkCrawler
 1. Makes HTTP requests. Finds next links by searching for the `href` attribute of the `<a></a>` tag.
 2. All URLs sanitzied using the `url.parse` and `url.format` of the [URL](https://nodejs.org/api/url.html) module.
 3. Crawler checks for `content-type`. Sends empty outBound links array for non-HTML contents.
@@ -28,7 +28,7 @@ Year & Programme | Final Year B.Tech.
 3. Maintains `_linkQueue` which is made thread safe using [async-mutex](https://www.npmjs.com/package/async-mutex).
 4. The `_handlePageVisit()` is called until the `_linkQueue` is empty.
 5. Saves the crawled results to a new JSON file for furture use (because crawling can take 2-5 mins for a regular webiste). 
-
+6. Filters out visited sites and sites with hashPaths to save additional network calls.
 
 
 ### Screenshots
