@@ -11,6 +11,11 @@ College I.D.     | 161070015
 Department       | Computer Engineering
 Year & Programme | Final Year B.Tech.
 
+## How to run the code?
+```
+npm install       #install dependencies
+node index.js     # make sure that the node version is at least v10.15.1
+```
 
 ### About the LinkCrawler
 1. Makes HTTP requests. Finds next links by searching for the `href` attribute of the `<a></a>` tag.
