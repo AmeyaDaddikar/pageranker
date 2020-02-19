@@ -52,6 +52,7 @@ node index.js     # make sure that the node version is at least v10.15.1
 ![index.js](screenshots/ss1.png)
 
 Snippet from `_handleCompute()` function inside `src/pageranker.js` that shows the algorithm steps applied. I've not used Matrices in my approach as I was unaware of that method. In hindsight, the current forEach is more time-consuming than the Matrix multiplication approach.
+
 ![PageRank Algo](screenshots/ss4.png)
 
 Start of output of the program. The pageranker tries to find the fie, however being unable to find it, the pageranker starts crawling the website instead.
