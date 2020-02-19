@@ -9,7 +9,7 @@ const LinkCrawler = require('./linkcrawler');
 
 class PageRanker {
 
-  constructor(hostname, allowCrossDomain = false) {
+  constructor(hostname, allowCrossDomain = false, MAX_ITERATIONS = 2, DAMPING_FACTOR = 0.4) {
 
     this._linkcrawler = new LinkCrawler({
       defaultHostName  : hostname,
@@ -21,6 +21,8 @@ class PageRanker {
     this._linkQueue = [];
     this._mutex = new Mutex();
     this._eventEmitter = new events.EventEmitter();
+    this.MAX_ITERATIONS = MAX_ITERATIONS;
+    this.DAMPING_FACTOR = DAMPING_FACTOR;
 
   }
 
@@ -36,7 +38,7 @@ class PageRanker {
 
     if (nextUrl === undefined) {
       //_linkQueue is empty. i.e. all links have been visited
-      this._eventEmitter.emit(`release-${this._id}`);
+      this._eventEmitter.emit(`save-${this._id}`);
       return;
     }
 
@@ -74,33 +76,109 @@ class PageRanker {
 
   }
 
-  _handleRelease() {
+
+  _handleSave(filePath) {
     console.timeEnd('crawling');
-    this._eventEmitter.removeAllListeners();
     console.info(`Crawled ${Object.keys(this._links).length} pages.`);
+    console.info(`Saving to file "site_map_${this._linkcrawler.getOptions().defaultHostName}.json" ...`);
 
-    console.info('Saving to file...');
-
-    let saveData = {};
+    let transformedData = {};
     Object.keys(this._links).forEach(key => {
-      saveData[key] = {out : this._links[key].out.map(t => url.format(t))}
+      transformedData[key] = {out : this._links[key].out.map(t => url.format(t))}
     })
 
-    fs.appendFile('site_map.json', JSON.stringify(saveData), console.error);
+    if (filePath === null)
+      filePath = `site_map_${this._linkcrawler.getOptions().defaultHostName}.json`;
+
+    fs.writeFile(
+      filePath, 
+      JSON.stringify(transformedData), 
+      err => err && console.error(err)
+    );
+
+    this._links = transformedData;
+
+    this._eventEmitter.emit(`compute-${this._id}`);
+
   }
 
-  rank(startRoute = '/') {
+  _handleCompute() {
+
+    console.log('Computing...');
+
+    const N = Object.keys(this._links).length;
+
+    // Initializing PR for all links;
+    Object.keys(this._links).forEach(link => {
+      this._links[link].PR = (1.0 / N);
+      this._links[link].L  = this._links[link].out.length;
+      this._links[link].in = Object.keys(this._links).filter(k => this._links[k].out.includes(link));
+    });
+
+    //console.log(Objec.keys(this._links).filter(l => ));
+
+    for (let i = 0; i < this.MAX_ITERATIONS; i += 1) {
+
+      const prevItrLinks = Object.create(this._links);
+
+
+
+      Object.keys(this._links).forEach(link => {
+        const inBoundLinks = prevItrLinks[link].in;
+
+        let totalPR = 0;
+
+        inBoundLinks.forEach(l => {
+          totalPR = totalPR + ( prevItrLinks[l].PR / prevItrLinks[l].L );
+        })
+
+        totalPR =  totalPR * this.DAMPING_FACTOR;
+
+        totalPR =  totalPR + ((1 - this.DAMPING_FACTOR) / N);
+
+        // if (totalPR > 0.000001)
+        //   console.log(link, totalPR);
+
+
+        this._links[link].PR = totalPR;
+      })
+      
+      //console.log(`TOTAL:: ${tot}, Iteration: ${i + 1}, in: ${this._links['http://vjti.ac.in/index.php/disclaimer'].in.length} , PR: ${this._links['http://vjti.ac.in/index.php/disclaimer'].PR} L: ${this._links['http://vjti.ac.in/index.php/disclaimer'].L}`)
+    }
+    
+    this._eventEmitter.emit(`release-${this._id}`);
+  }
+
+  _handleRelease(callback) {
+    this._eventEmitter.removeAllListeners();
+
+    callback(Object.keys(this._links).map(l => ({link: l, PR: this._links[l].PR})));
+  }
+
+  rank(startRoute = '/', filePath = null, callback) {
 
     this._links = {};
-    this._linkQueue.push(this._linkcrawler.getFormattedURL(startRoute));
+    this._linkQueue = [];
 
     this._eventEmitter.on(`append-${this._id}`, () => this._handlePageVisit());
-    this._eventEmitter.on(`release-${this._id}`,() => this._handleRelease());
+    this._eventEmitter.on(`save-${this._id}`, () => this._handleSave(filePath));
+    this._eventEmitter.on(`compute-${this._id}`, () => this._handleCompute());
+    this._eventEmitter.on(`release-${this._id}`,() => this._handleRelease(callback));
 
-    // Initialize crawling
-    console.time('crawling');
-    this._eventEmitter.emit(`append-${this._id}`);
 
+    try {
+      this._links = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      console.info('Obtained data from file!');
+      this._eventEmitter.emit(`compute-${this._id}`);  
+    } catch(e) {
+      console.info(`Error occured while reading file:: ${e}\nFetching data from website instead....`);
+
+      this._linkQueue.push(this._linkcrawler.getFormattedURL(startRoute));
+
+      // Initialize crawling
+      console.time('crawling');
+      this._eventEmitter.emit(`append-${this._id}`);  
+    }
     
   }
 }
