@@ -84,7 +84,9 @@ class PageRanker {
 
     let transformedData = {};
     Object.keys(this._links).forEach(key => {
-      transformedData[key] = {out : this._links[key].out.map(t => url.format(t))}
+
+      const out = this._links[key].out.map(t => url.format(t));
+      transformedData[key] = {out : [... new Set(out)]}
     })
 
     if (filePath === null)
