@@ -64,4 +64,3 @@ Shows output after the crawling is done and the PageRank is calculated.
 ### Issues
 1. Currently the crawler supports HTTP only. HTTPS routes forced to use HTTP protocol instead.
 2. Crawler will not work on websites relying on DOM manipulation. (e.g.: React, Angular, VueJS, etc.)
-3. P.R. total not adding up correctly.
